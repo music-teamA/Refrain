@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import styles from "./page.module.css";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -119,13 +119,10 @@ export default function AlbumDetailPage() {
                     // 選択した順番でURLを作成
                     for (const item of postPhotos) {
                         const storagePath = photoMap.get(item.photo_id);
-
                         if (!storagePath) continue;
-
                         const { data: urlData } = supabase.storage
                             .from("photos")
                             .getPublicUrl(storagePath);
-
                         photoUrls.push(urlData.publicUrl);
                     }
                 }
@@ -137,7 +134,6 @@ export default function AlbumDetailPage() {
                 };
             })
         );
-
         setPosts(displayPosts);
     }, [albumId]);
 
@@ -207,12 +203,8 @@ export default function AlbumDetailPage() {
                 <>
                     {album && (
                         <>
-                            <h1>{album.name}</h1>
-
-                            <hr />
+                            <h1 className={styles.title}>{album.name}</h1>
                             <section>
-                                <h2>ふたりの思い出</h2>
-
                                 {posts.length === 0 ? (
                                     <p>
                                         まだ投稿はありません。
@@ -221,93 +213,75 @@ export default function AlbumDetailPage() {
                                 ) : (
                                     <ul>
                                         {posts.map((post) => (
-                                            <li key={post.id}>
-                                                <p>
-                                                    {new Date(
-                                                        post.created_at
-                                                    ).toLocaleString("ja-JP")}
-                                                </p>
-
-                                                {post.message && (
-                                                    <p
-                                                        style={{
-                                                            whiteSpace: "pre-wrap",
-                                                        }}
-                                                    >
-                                                        {post.message}
-                                                    </p>
-                                                )}
-
-                                                {post.imageUrl && (
-                                                    <Image
-                                                        src={post.imageUrl}
-                                                        alt="アルバムの写真"
-                                                        width={400}
-                                                        height={300}
-                                                        unoptimized
-                                                        style={{
-                                                            display: "block",
-                                                            width: "100%",
-                                                            maxWidth: "400px",
-                                                            height: "auto",
-                                                            borderRadius: "8px",
-                                                        }}
-                                                    />
-                                                )}
-
-                                                {post.photoUrls.length > 0 && (
-                                                    <div
-                                                        style={{
-                                                            display: "grid",
-                                                            gridTemplateColumns: "repeat(3, 1fr)",
-                                                            gap: "10px",
-                                                            maxWidth: "600px",
-                                                            marginTop: "10px",
-                                                        }}
-                                                    >
-                                                        {post.photoUrls.map((url, index) => (
-                                                            <Image
-                                                                key={`${post.id}-${index}`}
-                                                                src={url}
-                                                                alt={`アルバムの写真 ${index + 1}`}
-                                                                width={200}
-                                                                height={200}
-                                                                unoptimized
-                                                                style={{
-                                                                    width: "100%",
-                                                                    aspectRatio: "1 / 1",
-                                                                    objectFit: "cover",
-                                                                    borderRadius: "8px",
-                                                                }}
-                                                            />
-                                                        ))}
+                                            <li key={post.id} className={styles.cade}>
+                                                <div>
+                                                    <div className={styles.icon}></div>
+                                                </div>
+                                                <hr className={styles.divider} />
+                                                <div>
+                                                    <div className={styles.nameWrap}>
+                                                        <h2>{album.name}</h2>
+                                                        <p>
+                                                            {new Date(
+                                                                post.created_at
+                                                            ).toLocaleDateString("ja-JP")}
+                                                        </p>
                                                     </div>
-                                                )}
+                                                    {post.message && (
+                                                        <p>{post.message}</p>
+                                                    )}
 
-                                                <p>
-                                                    {post.user_id === userId
-                                                        ? "あなたの投稿"
-                                                        : "パートナーの投稿"}
-                                                </p>
+                                                    {post.imageUrl && (
+                                                        <Image
+                                                            src={post.imageUrl}
+                                                            alt="アルバムの写真"
+                                                            width={80}
+                                                            height={80}
+                                                            unoptimized
+                                                            style={{
+                                                                display: "block",
+                                                                width: "100%",
+                                                                maxWidth: "80px",
+                                                                height: "auto",
+                                                                borderRadius: "8px",
+                                                            }}
+                                                        />
+                                                    )}
 
-                                                <hr />
+                                                    {post.photoUrls.length > 0 && (
+                                                        <div
+                                                            style={{
+                                                            }}
+                                                            className={styles.photoWrap}
+                                                        >
+                                                            {post.photoUrls.map((url, index) => (
+                                                                <Image
+                                                                    key={`${post.id}-${index}`}
+                                                                    src={url}
+                                                                    alt={`アルバムの写真 ${index + 1}`}
+                                                                    className={styles.photo}
+                                                                    width={80}
+                                                                    height={80}
+                                                                    unoptimized
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {/* <p>
+                                                        {post.user_id === userId
+                                                            ? "あなたの投稿"
+                                                            : "パートナーの投稿"}
+                                                    </p> */}
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>
                                 )}
-
-                                <button
-                                    type="button"
-                                    onClick={() => void loadPosts()}
-                                >
-                                    投稿を再読み込み
-                                </button>
                             </section>
                         </>
                     )}
                 </>
             )}
-
             {message && <p role="status">{message}</p>}
             <Footer />
         </main>
