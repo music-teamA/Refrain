@@ -110,8 +110,7 @@ export default function NewAlbumPage() {
 
     return (
         <main className={styles.wrap}>
-
-            <header className={styles.header}>
+            <div className={styles.header}>
                 {/* 戻るボタン */}
                 <Link href="/album" className={styles.closeBtn}>
                     <svg
@@ -123,7 +122,7 @@ export default function NewAlbumPage() {
                     >
                         <path
                             d="M20 20L4 4M20 4L4 20"
-                            strokeWidth="2"
+                            strokeWidth="3"
                             strokeLinecap="round"
                             stroke="white"
                         />
@@ -142,7 +141,7 @@ export default function NewAlbumPage() {
                 >
                     保存
                 </button>
-            </header>
+            </div>
 
             {loading ? (
                 <p>読み込み中...</p>
