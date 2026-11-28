@@ -1,7 +1,7 @@
 "use client";
 import styles from "./page.module.css";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/supabase/client";
 import Footer from "@/components/Footer/page";
@@ -25,7 +25,7 @@ type DisplayPost = AlbumPost & {
     photoUrls: string[];
 };
 
-export default function AlbumDetailPage() {
+function AlbumDetailContent() {
     const params = useParams<{ id: string }>();
     const albumId = params.id;
 
@@ -119,10 +119,13 @@ export default function AlbumDetailPage() {
                     // 選択した順番でURLを作成
                     for (const item of postPhotos) {
                         const storagePath = photoMap.get(item.photo_id);
+
                         if (!storagePath) continue;
+
                         const { data: urlData } = supabase.storage
                             .from("photos")
                             .getPublicUrl(storagePath);
+
                         photoUrls.push(urlData.publicUrl);
                     }
                 }
@@ -134,6 +137,7 @@ export default function AlbumDetailPage() {
                 };
             })
         );
+
         setPosts(displayPosts);
     }, [albumId]);
 
@@ -181,6 +185,7 @@ export default function AlbumDetailPage() {
             }
 
             setAlbum(data);
+
             await loadPosts();
 
             if (!cancelled) {
@@ -204,6 +209,7 @@ export default function AlbumDetailPage() {
                     {album && (
                         <>
                             <h1 className={styles.title}>{album.name}</h1>
+
                             <section>
                                 {posts.length === 0 ? (
                                     <p>
@@ -220,20 +226,29 @@ export default function AlbumDetailPage() {
                                                 <hr className={styles.divider} />
                                                 <div>
                                                     <div className={styles.nameWrap}>
-                                                        <h2>{album.name}</h2>
+                                                        <h2>
+                                                            {album.name}
+                                                        </h2>
                                                         <p>
                                                             {new Date(
                                                                 post.created_at
-                                                            ).toLocaleDateString("ja-JP")}
+                                                            ).toLocaleDateString(
+                                                                "ja-JP"
+                                                            )}
                                                         </p>
                                                     </div>
+
                                                     {post.message && (
-                                                        <p>{post.message}</p>
+                                                        <p>
+                                                            {post.message}
+                                                        </p>
                                                     )}
 
                                                     {post.imageUrl && (
                                                         <Image
-                                                            src={post.imageUrl}
+                                                            src={
+                                                                post.imageUrl
+                                                            }
                                                             alt="アルバムの写真"
                                                             width={80}
                                                             height={80}
@@ -248,25 +263,27 @@ export default function AlbumDetailPage() {
                                                         />
                                                     )}
 
-                                                    {post.photoUrls.length > 0 && (
-                                                        <div
-                                                            style={{
-                                                            }}
-                                                            className={styles.photoWrap}
-                                                        >
-                                                            {post.photoUrls.map((url, index) => (
-                                                                <Image
-                                                                    key={`${post.id}-${index}`}
-                                                                    src={url}
-                                                                    alt={`アルバムの写真 ${index + 1}`}
-                                                                    className={styles.photo}
-                                                                    width={80}
-                                                                    height={80}
-                                                                    unoptimized
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    {post.photoUrls.length >
+                                                        0 && (
+                                                            <div className={styles.photoWrap}>
+                                                                {post.photoUrls.map(
+                                                                    (
+                                                                        url, index
+                                                                    ) => (
+                                                                        <Image
+                                                                            key={`${post.id}-${index}`}
+                                                                            src={url}
+                                                                            alt={`アルバムの写真 ${index + 1}`}
+                                                                            className={styles.photo}
+                                                                            width={80}
+                                                                            height={80}
+                                                                            unoptimized
+                                                                        />
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        )}
+
                                                     {/* <p>
                                                         {post.user_id === userId
                                                             ? "あなたの投稿"
@@ -282,8 +299,18 @@ export default function AlbumDetailPage() {
                     )}
                 </>
             )}
+
             {message && <p role="status">{message}</p>}
+
             <Footer />
         </main>
+    );
+}
+
+export default function AlbumDetailPage() {
+    return (
+        <Suspense fallback={<p>アルバムを読み込み中...</p>}>
+            <AlbumDetailContent />
+        </Suspense>
     );
 }
