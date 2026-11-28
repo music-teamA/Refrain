@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/supabase/client";
+import styles from "./page.module.css";
 
 export default function SignupPage() {
     const [email, setEmail] = useState("");
